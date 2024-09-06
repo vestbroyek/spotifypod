@@ -39,6 +39,8 @@ function WebPlayback(props) {
 
             player.addListener('ready', ({ device_id }) => {
                 console.log('Ready with Device ID', device_id);
+                console.log('Attempting to transfer playback...')
+                transferPlayback(device_id);
             });
 
             player.addListener('not_ready', ({ device_id }) => {
@@ -64,6 +66,30 @@ function WebPlayback(props) {
 
         };
     }, []);
+
+    const transferPlayback = async (device_id) => {
+        try {
+          const response = await fetch('https://api.spotify.com/v1/me/player', {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${props.token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              device_ids: [device_id],
+              play: true,
+            }),
+          });
+    
+          if (response.status === 204) {
+            console.log('Playback transferred successfully');
+          } else {
+            console.error('Failed to transfer playback:', response.status);
+          }
+        } catch (error) {
+          console.error('Error transferring playback:', error);
+        }
+      };
 
     if (!is_active) { 
         return (
