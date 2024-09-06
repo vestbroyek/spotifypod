@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 const port = 5001
 
 global.access_token = ''
+global.refresh_token = ''
+global.token_expiry = 0
 
 dotenv.config()
 
@@ -62,6 +64,8 @@ app.get('/auth/callback', (req, res) => {
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       access_token = body.access_token;
+      refresh_token = body.refresh_token;
+      token_expiry = Date.now() + body.expires_in * 1000;
       res.redirect('/')
     }
   });
@@ -69,7 +73,33 @@ app.get('/auth/callback', (req, res) => {
 })
 
 app.get('/auth/token', (req, res) => {
-  res.json({ access_token: access_token})
+  if (Date.now() > token_expiry) {
+    // Token has expired, refresh it
+    const authOptions = {
+      url: 'https://accounts.spotify.com/api/token',
+      form: {
+        grant_type: 'refresh_token',
+        refresh_token: refresh_token
+      },
+      headers: {
+        'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      json: true
+    };
+
+    request.post(authOptions, function(error, response, body) {
+      if (!error && response.statusCode === 200) {
+        access_token = body.access_token;
+        token_expiry = Date.now() + body.expires_in * 1000;
+        res.json({ access_token: access_token });
+      } else {
+        res.status(400).json({ error: 'Failed to refresh token' });
+      }
+    });
+  } else {
+    res.json({ access_token: access_token });
+  }
 })
 
 app.listen(port, () => {

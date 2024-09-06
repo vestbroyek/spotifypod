@@ -18,8 +18,18 @@ function WebPlayback(props) {
     const [is_active, setActive] = useState(false);
     const [player, setPlayer] = useState(undefined);
     const [current_track, setTrack] = useState(track);
+    const [token, setToken] = useState('');
 
     useEffect(() => {
+
+        const getToken = async () => {
+            const response = await fetch('/auth/token');
+            const json = await response.json();
+            setToken(json.access_token);
+          };
+
+        console.log("Fetching a fresh token...");
+        getToken();
 
         const script = document.createElement("script");
         script.src = "https://sdk.scdn.co/spotify-player.js";
@@ -28,11 +38,14 @@ function WebPlayback(props) {
         document.body.appendChild(script);
 
         window.onSpotifyWebPlaybackSDKReady = () => {
-
             const player = new window.Spotify.Player({
-                name: 'Web Playback SDK',
-                getOAuthToken: cb => { cb(props.token); },
-                volume: 0.5
+              name: 'Web Playback SDK',
+              getOAuthToken: async cb => {
+                const response = await fetch('/auth/token');
+                const json = await response.json();
+                cb(json.access_token);
+              },
+              volume: 0.5
             });
 
             setPlayer(player);
