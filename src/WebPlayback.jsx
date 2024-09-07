@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 const track = {
     name: "",
     album: {
+        name: "",
         images: [
             { url: "" }
         ]
@@ -125,6 +126,7 @@ function WebPlayback(props) {
                         <div className="now-playing__side">
                             <div className="now-playing__name">{current_track.name}</div>
                             <div className="now-playing__artist">{current_track.artists[0].name}</div>
+                            <div classNam="now-playing__album">{current_track.album.name}</div>
 
                             <button className="btn-spotify" onClick={() => { player.previousTrack() }} >
                                 &lt;&lt;
