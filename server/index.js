@@ -25,6 +25,19 @@ var generateRandomString = function (length) {
   return text;
 };
 
+var authOptions = {
+  url: 'https://accounts.spotify.com/api/token',
+  headers: {
+    'content-type': 'application/x-www-form-urlencoded',
+    'Authorization': 'Basic ' + (new Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64'))
+  },
+  form: {
+    grant_type: 'refresh_token',
+    refresh_token: refresh_token
+  },
+  json: true
+};
+
 var app = express();
 
 app.get('/auth/login', (req, res) => {
@@ -73,34 +86,25 @@ app.get('/auth/callback', (req, res) => {
 })
 
 app.get('/auth/token', (req, res) => {
-  if (Date.now() > token_expiry) {
-    // Token has expired, refresh it
-    const authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        grant_type: 'refresh_token',
-        refresh_token: refresh_token
-      },
-      headers: {
-        'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      json: true
-    };
-
-    request.post(authOptions, function(error, response, body) {
+  if (Date.now() > token_expiry && token_expiry !== 0) {
+    request.post(authOptions, (error, response, body) => {
       if (!error && response.statusCode === 200) {
-        access_token = body.access_token;
-        token_expiry = Date.now() + body.expires_in * 1000;
-        res.json({ access_token: access_token });
-      } else {
-        res.status(400).json({ error: 'Failed to refresh token' });
+          access_token = body.access_token;
+          if (body.refresh_token) {
+              refresh_token = body.refresh_token;
+          }
+          token_expiry = Date.now() + body.expires_in * 1000;
+          res.json({ access_token: access_token });
+      } 
+      else {
+          res.status(500).json({ error: 'Failed to refresh token' });
       }
     });
-  } else {
+  }
+  else {
     res.json({ access_token: access_token });
   }
-})
+  });
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`)
