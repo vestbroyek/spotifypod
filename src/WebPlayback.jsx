@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ProgressBar from './ProgressBar'
 
 const track = {
     name: "",
@@ -19,17 +20,16 @@ function WebPlayback(props) {
     const [is_active, setActive] = useState(false);
     const [player, setPlayer] = useState(undefined);
     const [current_track, setTrack] = useState(track);
+    const [playerState, setPlayerState] = useState(undefined);
     const [token, setToken] = useState('');
 
     useEffect(() => {
-
         const getToken = async () => {
             const response = await fetch('/auth/token');
             const json = await response.json();
             setToken(json.access_token);
           };
 
-        console.log("Fetching a fresh token...");
         getToken();
 
         const script = document.createElement("script");
@@ -69,6 +69,7 @@ function WebPlayback(props) {
 
                 setTrack(state.track_window.current_track);
                 setPaused(state.paused);
+                setPlayerState(state);
 
                 player.getCurrentState().then( state => { 
                     (!state)? setActive(false) : setActive(true) 
@@ -139,6 +140,9 @@ function WebPlayback(props) {
                             <button className="btn-spotify" onClick={() => { player.nextTrack() }} >
                                 &gt;&gt;
                             </button>
+
+                            <ProgressBar player={player} playerState={playerState} />
+
                         </div>
                     </div>
                 </div>
