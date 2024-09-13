@@ -129,17 +129,19 @@ function WebPlayback(props) {
                             <div className="now-playing__artist">{current_track.artists[0].name}</div>
                             <div className="now-playing__album">{current_track.album.name}</div>
 
-                            <button className="btn-spotify" onClick={() => { player.previousTrack() }} >
-                                &lt;&lt;
-                            </button>
+                            <div className="controls">
+                                <button className="btn-spotify" onClick={() => { player.previousTrack() }}>
+                                    &lt;&lt;
+                                </button>
 
-                            <button className="btn-spotify" onClick={() => { player.togglePlay() }} >
-                                { is_paused ? "PLAY" : "PAUSE" }
-                            </button>
+                                <button className="btn-spotify" onClick={() => { player.togglePlay() }}>
+                                    { is_paused ? ">" : "||" }
+                                </button>
 
-                            <button className="btn-spotify" onClick={() => { player.nextTrack() }} >
-                                &gt;&gt;
-                            </button>
+                                <button className="btn-spotify" onClick={() => { player.nextTrack() }}>
+                                    &gt;&gt;
+                                </button>
+                            </div>
 
                             <ProgressBar player={player} playerState={playerState} />
 

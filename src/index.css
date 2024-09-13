@@ -68,8 +68,8 @@ code {
 }
 
 .btn-spotify {
-  background-color: #063059;
-  color: #ffffff;
+  background-color: transparent;
+  color: #063059;
   border: none;
   border-radius: 50%;
   width: 48px;
