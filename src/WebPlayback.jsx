@@ -40,7 +40,7 @@ function WebPlayback(props) {
 
         window.onSpotifyWebPlaybackSDKReady = () => {
             const player = new window.Spotify.Player({
-              name: 'Web Playback SDK',
+              name: 'SpotifyPod',
               getOAuthToken: async cb => {
                 const response = await fetch('/auth/token');
                 const json = await response.json();
