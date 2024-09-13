@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ProgressBar from './ProgressBar'
+import PlaylistView from './PlaylistView'
 
 const track = {
     name: "",
@@ -22,6 +23,7 @@ function WebPlayback(props) {
     const [current_track, setTrack] = useState(track);
     const [playerState, setPlayerState] = useState(undefined);
     const [token, setToken] = useState('');
+    const [showPlaylists, setShowPlaylists] = useState(false);
 
     useEffect(() => {
         const getToken = async () => {
@@ -82,6 +84,10 @@ function WebPlayback(props) {
         };
     }, []);
 
+    const toggleView = () => {
+        setShowPlaylists(!showPlaylists);
+    };
+
     const transferPlayback = async (device_id) => {
         try {
           const response = await fetch('https://api.spotify.com/v1/me/player', {
@@ -116,41 +122,49 @@ function WebPlayback(props) {
                     </div>
                 </div>
             </>)
-    } else {
-        return (
-            <>
-                <div className="container">
-                    <div className="main-wrapper">
+    } 
 
-                        <img src={current_track.album.images[0].url} className="now-playing__cover" alt="" />
+    if (showPlaylists) {
+        return <PlaylistView onBackToPlayer={toggleView} />;
+    }
 
-                        <div className="now-playing__side">
-                            <div className="now-playing__name">{current_track.name}</div>
-                            <div className="now-playing__artist">{current_track.artists[0].name}</div>
-                            <div className="now-playing__album">{current_track.album.name}</div>
+    return (
+        <>
+            <div className="container">
+                <div className="main-wrapper">
 
-                            <div className="controls">
-                                <button className="btn-spotify" onClick={() => { player.previousTrack() }}>
-                                    &lt;&lt;
-                                </button>
+                    <img src={current_track.album.images[0].url} className="now-playing__cover" alt="" />
 
-                                <button className="btn-spotify" onClick={() => { player.togglePlay() }}>
-                                    { is_paused ? ">" : "||" }
-                                </button>
+                    <div className="now-playing__side">
+                        <div className="now-playing__name">{current_track.name}</div>
+                        <div className="now-playing__artist">{current_track.artists[0].name}</div>
+                        <div className="now-playing__album">{current_track.album.name}</div>
 
-                                <button className="btn-spotify" onClick={() => { player.nextTrack() }}>
-                                    &gt;&gt;
-                                </button>
-                            </div>
+                        <div className="controls">
+                            <button className="btn-spotify" onClick={() => { player.previousTrack() }}>
+                                &lt;&lt;
+                            </button>
 
-                            <ProgressBar player={player} playerState={playerState} />
+                            <button className="btn-spotify" onClick={() => { player.togglePlay() }}>
+                                { is_paused ? ">" : "||" }
+                            </button>
 
+                            <button className="btn-spotify" onClick={() => { player.nextTrack() }}>
+                                &gt;&gt;
+                            </button>
                         </div>
+
+                        <ProgressBar player={player} playerState={playerState} />
+
+                        <button className="btn-spotify" onClick={toggleView}>
+                            View Playlists
+                        </button>
+
                     </div>
                 </div>
-            </>
-        );
-    }
+            </div>
+        </>
+    );
 }
 
 export default WebPlayback
