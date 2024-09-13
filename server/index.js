@@ -65,8 +65,7 @@ app.get('/auth/callback', (req, res) => {
     if (!error && response.statusCode === 200) {
       access_token = body.access_token;
       refresh_token = body.refresh_token;
-      // token_expiry = Date.now() + body.expires_in * 1000; debug!
-      token_expiry = Date.now() + 5000;
+      token_expiry = Date.now() + body.expires_in * 1000;
       res.redirect('/')
     }
   });
@@ -88,7 +87,6 @@ app.get('/auth/token', (req, res) => {
       json: true
     };
     request.post(authOptions, (error, response, body) => {
-      console.log(body); // debug only
       if (!error && response.statusCode === 200) {
           access_token = body.access_token;
           if (body.refresh_token) {
